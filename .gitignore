@@ -1,0 +1,36 @@
+# Python & Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+*.env
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# Uploads & Generated Outputs
+backend/app/uploads/*
+!backend/app/uploads/.gitkeep
+backend/app/outputs/*
+!backend/app/outputs/.gitkeep
+backend/app/evidence/*
+!backend/app/evidence/.gitkeep
+
+# Weights & Dataset Caches
+*.pt
+*.onnx
+*.engine
+datasets/*
+!datasets/.gitkeep
+runs/
+.ultralytics/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/build/
+.DS_Store
+*.log
