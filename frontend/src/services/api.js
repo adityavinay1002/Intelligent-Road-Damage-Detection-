@@ -2,6 +2,17 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api';
 
+export const formatMediaUrl = (pathStr) => {
+  if (!pathStr) return '';
+  // Handle Windows absolute paths or missing slashes
+  const path = String(pathStr).replace(/\\/g, '/');
+  const match = path.match(/(uploads|outputs|evidence)\/(.+)/);
+  if (match) {
+    return `/${match[1]}/${match[2]}`;
+  }
+  return path.startsWith('/') ? path : `/${path}`;
+};
+
 export const api = {
   // Stats overview for dashboard
   getStats: async () => {
@@ -9,7 +20,7 @@ export const api = {
     return response.data;
   },
 
-  // Records list
+  // Records list with optional filters
   getRecords: async (params = {}) => {
     const response = await axios.get(`${API_BASE_URL}/records`, { params });
     return response.data;
@@ -18,6 +29,12 @@ export const api = {
   // Single record detail
   getRecordDetail: async (detectionId) => {
     const response = await axios.get(`${API_BASE_URL}/records/${detectionId}`);
+    return response.data;
+  },
+
+  // Delete single record
+  deleteRecord: async (detectionId) => {
+    const response = await axios.delete(`${API_BASE_URL}/records/${detectionId}`);
     return response.data;
   },
 

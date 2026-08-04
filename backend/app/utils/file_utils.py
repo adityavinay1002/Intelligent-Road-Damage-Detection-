@@ -1,6 +1,6 @@
 import os
+import re
 import uuid
-import shutil
 from pathlib import Path
 from typing import Tuple
 
@@ -14,6 +14,16 @@ def ensure_directories():
     OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
     EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
 
+def normalize_path(path: str) -> str:
+    """Normalize absolute Windows/Linux paths to clean relative web URLs."""
+    if not path:
+        return ""
+    path_str = str(path).replace('\\', '/')
+    match = re.search(r'(uploads|outputs|evidence)/(.+)', path_str)
+    if match:
+        return f"{match.group(1)}/{match.group(2)}"
+    return path_str
+
 def generate_file_paths(filename: str) -> Tuple[str, Path, Path]:
     ensure_directories()
     ext = Path(filename).suffix.lower()
@@ -23,9 +33,9 @@ def generate_file_paths(filename: str) -> Tuple[str, Path, Path]:
     base_name = f"{unique_id}{ext}"
     
     upload_path = UPLOADS_DIR / base_name
-    output_path = OUTPUTS_DIR / f"annotated_{base_name}"
+    output_path = OUTPUTS_DIR / f"annotated_{unique_id}.jpg"
     return unique_id, upload_path, output_path
 
 def get_evidence_path(detection_id: str, index: int) -> Path:
     ensure_directories()
-    return EVIDENCE_DIR / f"crop_{detection_id}_{index}.jpg"
+    return EVIDENCE_DIR / f"crop_{detection_id}_{index}.png"

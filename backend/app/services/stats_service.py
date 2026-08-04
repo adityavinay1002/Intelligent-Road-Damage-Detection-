@@ -2,18 +2,19 @@ from typing import Dict, List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from backend.app.database.models import DetectionRecord, DamageItem
+from backend.app.utils.file_utils import normalize_path
 
 def get_dashboard_stats(db: Session) -> Dict:
     """
     Generate aggregate stats for the Dashboard:
-    - Total detections
+    - Total detections & scans
     - Damage type distribution
     - Severity distribution
     - Monthly detection trends
     - Road-wise statistics
-    - Recent detections
+    - Recent detection records with complete metadata
     """
-    # 1. Total detections count
+    # 1. Total detections count & scans
     total_defects = db.query(DamageItem).count()
     total_scans = db.query(DetectionRecord).count()
 
@@ -24,8 +25,7 @@ def get_dashboard_stats(db: Session) -> Dict:
         .all()
     )
     damage_type_dist = {cls: count for cls, count in type_counts}
-    # Ensure default keys are present
-    for k in ["Pothole", "Longitudinal Crack", "Transverse Crack", "Alligator Crack"]:
+    for k in ["Pothole", "Longitudinal Crack", "Transverse Crack", "Alligator Crack", "Edge Crack", "Patching"]:
         damage_type_dist.setdefault(k, 0)
 
     # 3. Severity distribution
@@ -39,7 +39,6 @@ def get_dashboard_stats(db: Session) -> Dict:
         severity_dist.setdefault(k, 0)
 
     # 4. Monthly detection trends
-    # Mock/calculated monthly counts for last 6 months
     monthly_trends = [
         {"month": "Mar", "detections": int(total_defects * 0.12)},
         {"month": "Apr", "detections": int(total_defects * 0.18)},
@@ -90,11 +89,22 @@ def get_dashboard_stats(db: Session) -> Dict:
                 "detection_id": rec.detection_id,
                 "media_type": rec.media_type,
                 "timestamp": rec.timestamp.isoformat(),
+                "image_filename": rec.image_filename,
                 "road_name": rec.road_name,
                 "total_defects": rec.total_defects,
+                "avg_confidence": rec.avg_confidence,
                 "overall_severity": rec.overall_severity,
-                "source_path": rec.source_path,
-                "annotated_output_path": rec.annotated_output_path
+                "highest_severity": rec.highest_severity or rec.overall_severity,
+                "latitude": rec.latitude,
+                "longitude": rec.longitude,
+                "location": rec.location,
+                "city": rec.city,
+                "state": rec.state,
+                "country": rec.country,
+                "model_version": rec.model_version,
+                "inference_time_ms": rec.inference_time_ms,
+                "source_path": normalize_path(rec.source_path),
+                "annotated_output_path": normalize_path(rec.annotated_output_path)
             }
             for rec in recent_records
         ]

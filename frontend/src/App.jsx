@@ -1,54 +1,67 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Dashboard from './pages/Dashboard';
 import DetectionStudio from './components/DetectionStudio';
 import MapView from './components/MapView';
+import HistoryPage from './pages/HistoryPage';
 import ReportsPage from './pages/ReportsPage';
-import TrainingSpecsPage from './pages/TrainingSpecsPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col font-sans">
-      
+    <div className="min-h-screen text-slate-100 flex flex-col font-sans relative bg-[#050811]">
+      {/* Background Ambient Gradient Layer */}
+      <div className="bg-ambient-glow" />
+
       {/* Navigation Bar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {activeTab === 'dashboard' && (
-          <Dashboard onNavigateStudio={() => setActiveTab('studio')} />
-        )}
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeTab === 'dashboard' && (
+              <Dashboard onNavigateStudio={() => setActiveTab('studio')} />
+            )}
 
-        {activeTab === 'studio' && (
-          <DetectionStudio />
-        )}
+            {activeTab === 'studio' && (
+              <DetectionStudio />
+            )}
 
-        {activeTab === 'map' && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-2xl font-extrabold text-white tracking-tight">Geotagged Road Defect Map</h2>
-              <p className="text-sm text-slate-400">Spatial Location Breakdown of Potholes and Cracks on Highway Sector A-1</p>
-            </div>
-            <MapView />
-          </div>
-        )}
+            {activeTab === 'map' && (
+              <div className="space-y-5">
+                <div>
+                  <h2 className="text-2xl font-black text-white tracking-tight">Geotagged Damage Map</h2>
+                  <p className="text-xs text-slate-400 mt-1">Spatial breakdown of potholes and road hazards across monitored road networks.</p>
+                </div>
+                <MapView />
+              </div>
+            )}
 
-        {activeTab === 'reports' && (
-          <ReportsPage />
-        )}
+            {activeTab === 'history' && (
+              <HistoryPage />
+            )}
 
-        {activeTab === 'training' && (
-          <TrainingSpecsPage />
-        )}
+            {activeTab === 'reports' && (
+              <ReportsPage />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
-        Intelligent Road Damage Detection System &copy; {new Date().getFullYear()} — Powered by YOLO11 & PyTorch
+      {/* Commercial SaaS Footer */}
+      <footer className="border-t border-white/[0.08] py-5 text-center text-xs text-slate-400 relative z-10 bg-slate-950/80 backdrop-blur-md">
+        <span className="font-extrabold text-white">RoadVision AI</span>
+        {' '}— Commercial Road Infrastructure Intelligence &copy; {new Date().getFullYear()} &nbsp;·&nbsp; Enterprise Autonomous Inspection Platform
       </footer>
-
     </div>
   );
 }
